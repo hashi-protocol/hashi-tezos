@@ -1,0 +1,460 @@
+parameter (or (or (pair %deposit (address %address_from) (pair (address %contract_address) (nat %token_id))) (nat %lockToken)) (or (nat %unlockToken) (nat %withdraw)));
+storage   (pair (pair (address %admin_address) (address %nft_contract)) (pair (map %tokens nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id)))) (nat %total_tokens)));
+code
+  {
+    UNPAIR;     # @parameter : @storage
+    IF_LEFT
+      {
+        IF_LEFT
+          {
+            # == deposit ==
+            # sp.transfer(sp.list([sp.set_type_expr(sp.record(from_ = sp.sender, txs = sp.list([sp.record(to_ = sp.address('KT1Tezooo1zzSmartPyzzSTATiCzzzyfC8eF'), token_id = params.token_id, amount = 1)])), sp.TRecord(from_ = sp.TAddress, txs = sp.TList(sp.TRecord(amount = sp.TNat, to_ = sp.TAddress, token_id = sp.TNat).layout(("to_", ("token_id", "amount"))))).layout(("from_", "txs")))]), sp.tez(0), sp.contract(sp.TList(sp.TRecord(from_ = sp.TAddress, txs = sp.TList(sp.TRecord(amount = sp.TNat, to_ = sp.TAddress, token_id = sp.TNat).layout(("to_", ("token_id", "amount"))))).layout(("from_", "txs"))), self.data.nft_contract, entry_point='transfer').open_some()) # @parameter%deposit : @storage
+            NIL operation; # list operation : @parameter%deposit : @storage
+            DUP 3;      # @storage : list operation : @parameter%deposit : @storage
+            CAR;        # pair (address %admin_address) (address %nft_contract) : list operation : @parameter%deposit : @storage
+            CDR;        # address : list operation : @parameter%deposit : @storage
+            CONTRACT %transfer (list (pair address (list (pair address (pair nat nat))))); # option (contract (list (pair address (list (pair address (pair nat nat)))))) : list operation : @parameter%deposit : @storage
+            IF_NONE
+              {
+                PUSH int 1165; # int : list operation : @parameter%deposit : @storage
+                FAILWITH;   # FAILED
+              }
+              {}; # @some : list operation : @parameter%deposit : @storage
+            PUSH mutez 0; # mutez : @some : list operation : @parameter%deposit : @storage
+            NIL (pair address (list (pair address (pair nat nat)))); # list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%deposit : @storage
+            NIL (pair address (pair nat nat)); # list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%deposit : @storage
+            PUSH nat 1; # nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%deposit : @storage
+            DUP 7;      # @parameter%deposit : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%deposit : @storage
+            GET 4;      # nat : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%deposit : @storage
+            PUSH address "KT1Tezooo1zzSmartPyzzSTATiCzzzyfC8eF"; # address : nat : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%deposit : @storage
+            PAIR 3;     # pair address (pair nat nat) : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%deposit : @storage
+            CONS;       # list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%deposit : @storage
+            SENDER;     # @sender : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%deposit : @storage
+            PAIR;       # pair @sender (list (pair address (pair nat nat))) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%deposit : @storage
+            CONS;       # list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%deposit : @storage
+            TRANSFER_TOKENS; # operation : list operation : @parameter%deposit : @storage
+            CONS;       # list operation : @parameter%deposit : @storage
+            # self.data.tokens[self.data.total_tokens] = sp.record(contract = sp.set_type_expr(params.contract_address, sp.TAddress), owner = sp.set_type_expr(params.address_from, sp.TAddress), status = 'deposited', token_id = sp.set_type_expr(params.token_id, sp.TNat)) # list operation : @parameter%deposit : @storage
+            DUP 3;      # @storage : list operation : @parameter%deposit : @storage
+            DUP;        # @storage : @storage : list operation : @parameter%deposit : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @parameter%deposit : @storage
+            DUP 4;      # @parameter%deposit : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @parameter%deposit : @storage
+            GET 4;      # nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @parameter%deposit : @storage
+            PUSH string "deposited"; # string : nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @parameter%deposit : @storage
+            PAIR;       # pair string nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @parameter%deposit : @storage
+            DIG 4;      # @parameter%deposit : pair string nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @storage
+            DUP;        # @parameter%deposit : @parameter%deposit : pair string nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @storage
+            CAR;        # address : @parameter%deposit : pair string nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @storage
+            SWAP;       # @parameter%deposit : address : pair string nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @storage
+            GET 3;      # address : address : pair string nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @storage
+            PAIR;       # pair address address : pair string nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @storage
+            PAIR;       # pair (pair address address) (pair string nat) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @storage
+            SOME;       # option (pair (pair address address) (pair string nat)) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @storage
+            DIG 4;      # @storage : option (pair (pair address address) (pair string nat)) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            GET 4;      # nat : option (pair (pair address address) (pair string nat)) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            UPDATE;     # map nat (pair (pair address address) (pair string nat)) : @storage : list operation
+            UPDATE 3;   # @storage : list operation
+            # sp.verify(self.data.tokens.contains(self.data.total_tokens), 'Token not deposited') # @storage : list operation
+            DUP;        # @storage : @storage : list operation
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            SWAP;       # @storage : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : list operation
+            DUP;        # @storage : @storage : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : list operation
+            DUG 3;      # @storage : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : list operation : @storage
+            GET 4;      # nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : list operation : @storage
+            MEM;        # bool : list operation : @storage
+            IF
+              {}
+              {
+                PUSH string "Token not deposited"; # string : list operation : @storage
+                FAILWITH;   # FAILED
+              }; # list operation : @storage
+            # sp.verify(~ (self.data.tokens[self.data.total_tokens].status == 'locked'), 'Token already locked') # list operation : @storage
+            PUSH string "locked"; # string : list operation : @storage
+            DIG 2;      # @storage : string : list operation
+            DUP;        # @storage : @storage : string : list operation
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : string : list operation
+            SWAP;       # @storage : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : list operation
+            DUP;        # @storage : @storage : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : list operation
+            DUG 4;      # @storage : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : list operation : @storage
+            GET 4;      # nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : list operation : @storage
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : list operation : @storage
+            IF_NONE
+              {
+                PUSH int 1181; # int : string : list operation : @storage
+                FAILWITH;   # FAILED
+              }
+              {
+                # of_some: Get-item:1181 # @some : string : list operation : @storage
+              }; # @some : string : list operation : @storage
+            GET 3;      # string : string : list operation : @storage
+            COMPARE;    # int : list operation : @storage
+            EQ;         # bool : list operation : @storage
+            IF
+              {
+                PUSH string "Token already locked"; # string : list operation : @storage
+                FAILWITH;   # FAILED
+              }
+              {}; # list operation : @storage
+            SWAP;       # @storage : list operation
+            # sp.verify(sp.sender == self.data.tokens[self.data.total_tokens].owner, 'Only owner can lock token') # @storage : list operation
+            DUP;        # @storage : @storage : list operation
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            SWAP;       # @storage : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : list operation
+            DUP;        # @storage : @storage : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : list operation
+            DUG 3;      # @storage : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : list operation : @storage
+            GET 4;      # nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : list operation : @storage
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : list operation : @storage
+            IF_NONE
+              {
+                PUSH int 1182; # int : list operation : @storage
+                FAILWITH;   # FAILED
+              }
+              {
+                # of_some: Get-item:1182 # @some : list operation : @storage
+              }; # @some : list operation : @storage
+            CAR;        # pair (address %contract) (address %owner) : list operation : @storage
+            CDR;        # address : list operation : @storage
+            SENDER;     # @sender : address : list operation : @storage
+            COMPARE;    # int : list operation : @storage
+            EQ;         # bool : list operation : @storage
+            IF
+              {}
+              {
+                PUSH string "Only owner can lock token"; # string : list operation : @storage
+                FAILWITH;   # FAILED
+              }; # list operation : @storage
+            SWAP;       # @storage : list operation
+            # self.data.tokens[self.data.total_tokens].status = 'locked' # @storage : list operation
+            DUP;        # @storage : @storage : list operation
+            DUG 2;      # @storage : list operation : @storage
+            DUP;        # @storage : @storage : list operation : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @storage
+            DUP;        # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @storage
+            DIG 4;      # @storage : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            GET 4;      # nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            DUP;        # nat : nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            DUG 2;      # nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            IF_NONE
+              {
+                PUSH int 1184; # int : nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+                FAILWITH;   # FAILED
+              }
+              {}; # @some : nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            PUSH string "locked"; # string : @some : nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            UPDATE 3;   # @some : nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            SOME;       # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : nat : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            SWAP;       # nat : option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            UPDATE;     # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            UPDATE 3;   # @storage : list operation
+            # self.data.total_tokens += 1 # @storage : list operation
+            DUP;        # @storage : @storage : list operation
+            GET 4;      # nat : @storage : list operation
+            PUSH nat 1; # nat : nat : @storage : list operation
+            ADD;        # nat : @storage : list operation
+            UPDATE 4;   # @storage : list operation
+            SWAP;       # list operation : @storage
+          }
+          {
+            SWAP;       # @storage : @parameter%lockToken
+            # == lockToken ==
+            # sp.verify(self.data.tokens.contains(params), 'Token not deposited') # @storage : @parameter%lockToken
+            DUP;        # @storage : @storage : @parameter%lockToken
+            DUG 2;      # @storage : @parameter%lockToken : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%lockToken : @storage
+            SWAP;       # @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUP;        # @parameter%lockToken : @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUG 2;      # @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%lockToken : @storage
+            MEM;        # bool : @parameter%lockToken : @storage
+            IF
+              {}
+              {
+                PUSH string "Token not deposited"; # string : @parameter%lockToken : @storage
+                FAILWITH;   # FAILED
+              }; # @parameter%lockToken : @storage
+            # sp.verify(~ (self.data.tokens[params].status == 'locked'), 'Token already locked') # @parameter%lockToken : @storage
+            PUSH string "locked"; # string : @parameter%lockToken : @storage
+            DUP 3;      # @storage : string : @parameter%lockToken : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : @parameter%lockToken : @storage
+            DUP 3;      # @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : @parameter%lockToken : @storage
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : @parameter%lockToken : @storage
+            IF_NONE
+              {
+                PUSH int 1181; # int : string : @parameter%lockToken : @storage
+                FAILWITH;   # FAILED
+              }
+              {
+                # of_some: Get-item:1181 # @some : string : @parameter%lockToken : @storage
+              }; # @some : string : @parameter%lockToken : @storage
+            GET 3;      # string : string : @parameter%lockToken : @storage
+            COMPARE;    # int : @parameter%lockToken : @storage
+            EQ;         # bool : @parameter%lockToken : @storage
+            IF
+              {
+                PUSH string "Token already locked"; # string : @parameter%lockToken : @storage
+                FAILWITH;   # FAILED
+              }
+              {}; # @parameter%lockToken : @storage
+            SWAP;       # @storage : @parameter%lockToken
+            # sp.verify(sp.sender == self.data.tokens[params].owner, 'Only owner can lock token') # @storage : @parameter%lockToken
+            DUP;        # @storage : @storage : @parameter%lockToken
+            DUG 2;      # @storage : @parameter%lockToken : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%lockToken : @storage
+            SWAP;       # @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUP;        # @parameter%lockToken : @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUG 2;      # @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%lockToken : @storage
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%lockToken : @storage
+            IF_NONE
+              {
+                PUSH int 1182; # int : @parameter%lockToken : @storage
+                FAILWITH;   # FAILED
+              }
+              {
+                # of_some: Get-item:1182 # @some : @parameter%lockToken : @storage
+              }; # @some : @parameter%lockToken : @storage
+            CAR;        # pair (address %contract) (address %owner) : @parameter%lockToken : @storage
+            CDR;        # address : @parameter%lockToken : @storage
+            SENDER;     # @sender : address : @parameter%lockToken : @storage
+            COMPARE;    # int : @parameter%lockToken : @storage
+            EQ;         # bool : @parameter%lockToken : @storage
+            IF
+              {}
+              {
+                PUSH string "Only owner can lock token"; # string : @parameter%lockToken : @storage
+                FAILWITH;   # FAILED
+              }; # @parameter%lockToken : @storage
+            SWAP;       # @storage : @parameter%lockToken
+            # self.data.tokens[params].status = 'locked' # @storage : @parameter%lockToken
+            DUP;        # @storage : @storage : @parameter%lockToken
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : @parameter%lockToken
+            DUP;        # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : @parameter%lockToken
+            DIG 3;      # @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUP;        # @parameter%lockToken : @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUG 2;      # @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            IF_NONE
+              {
+                PUSH int 1184; # int : @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+                FAILWITH;   # FAILED
+              }
+              {}; # @some : @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            PUSH string "locked"; # string : @some : @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            UPDATE 3;   # @some : @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            SOME;       # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%lockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            SWAP;       # @parameter%lockToken : option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            UPDATE;     # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            UPDATE 3;   # @storage
+            NIL operation; # list operation : @storage
+          }; # list operation : @storage
+      }
+      {
+        IF_LEFT
+          {
+            SWAP;       # @storage : @parameter%unlockToken
+            # == unlockToken ==
+            # sp.verify(self.data.tokens.contains(params), 'Token not found') # @storage : @parameter%unlockToken
+            DUP;        # @storage : @storage : @parameter%unlockToken
+            DUG 2;      # @storage : @parameter%unlockToken : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%unlockToken : @storage
+            SWAP;       # @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUP;        # @parameter%unlockToken : @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUG 2;      # @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%unlockToken : @storage
+            MEM;        # bool : @parameter%unlockToken : @storage
+            IF
+              {}
+              {
+                PUSH string "Token not found"; # string : @parameter%unlockToken : @storage
+                FAILWITH;   # FAILED
+              }; # @parameter%unlockToken : @storage
+            SWAP;       # @storage : @parameter%unlockToken
+            # sp.verify(sp.sender == self.data.tokens[params].owner, 'Only owner can unlock') # @storage : @parameter%unlockToken
+            DUP;        # @storage : @storage : @parameter%unlockToken
+            DUG 2;      # @storage : @parameter%unlockToken : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%unlockToken : @storage
+            SWAP;       # @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUP;        # @parameter%unlockToken : @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUG 2;      # @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%unlockToken : @storage
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%unlockToken : @storage
+            IF_NONE
+              {
+                PUSH int 1189; # int : @parameter%unlockToken : @storage
+                FAILWITH;   # FAILED
+              }
+              {
+                # of_some: Get-item:1189 # @some : @parameter%unlockToken : @storage
+              }; # @some : @parameter%unlockToken : @storage
+            CAR;        # pair (address %contract) (address %owner) : @parameter%unlockToken : @storage
+            CDR;        # address : @parameter%unlockToken : @storage
+            SENDER;     # @sender : address : @parameter%unlockToken : @storage
+            COMPARE;    # int : @parameter%unlockToken : @storage
+            EQ;         # bool : @parameter%unlockToken : @storage
+            IF
+              {}
+              {
+                PUSH string "Only owner can unlock"; # string : @parameter%unlockToken : @storage
+                FAILWITH;   # FAILED
+              }; # @parameter%unlockToken : @storage
+            # sp.verify(~ (self.data.tokens[params].status == 'unlocked'), 'Token already unlocked') # @parameter%unlockToken : @storage
+            PUSH string "unlocked"; # string : @parameter%unlockToken : @storage
+            DUP 3;      # @storage : string : @parameter%unlockToken : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : @parameter%unlockToken : @storage
+            DUP 3;      # @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : @parameter%unlockToken : @storage
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : @parameter%unlockToken : @storage
+            IF_NONE
+              {
+                PUSH int 1191; # int : string : @parameter%unlockToken : @storage
+                FAILWITH;   # FAILED
+              }
+              {
+                # of_some: Get-item:1191 # @some : string : @parameter%unlockToken : @storage
+              }; # @some : string : @parameter%unlockToken : @storage
+            GET 3;      # string : string : @parameter%unlockToken : @storage
+            COMPARE;    # int : @parameter%unlockToken : @storage
+            EQ;         # bool : @parameter%unlockToken : @storage
+            IF
+              {
+                PUSH string "Token already unlocked"; # string : @parameter%unlockToken : @storage
+                FAILWITH;   # FAILED
+              }
+              {}; # @parameter%unlockToken : @storage
+            SWAP;       # @storage : @parameter%unlockToken
+            # self.data.tokens[params].status = 'unlocked' # @storage : @parameter%unlockToken
+            DUP;        # @storage : @storage : @parameter%unlockToken
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : @parameter%unlockToken
+            DUP;        # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : @parameter%unlockToken
+            DIG 3;      # @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUP;        # @parameter%unlockToken : @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUG 2;      # @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            IF_NONE
+              {
+                PUSH int 1193; # int : @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+                FAILWITH;   # FAILED
+              }
+              {}; # @some : @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            PUSH string "unlocked"; # string : @some : @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            UPDATE 3;   # @some : @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            SOME;       # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%unlockToken : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            SWAP;       # @parameter%unlockToken : option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            UPDATE;     # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            UPDATE 3;   # @storage
+            NIL operation; # list operation : @storage
+          }
+          {
+            SWAP;       # @storage : @parameter%withdraw
+            # == withdraw ==
+            # sp.verify(self.data.tokens.contains(params), 'Token not found') # @storage : @parameter%withdraw
+            DUP;        # @storage : @storage : @parameter%withdraw
+            DUG 2;      # @storage : @parameter%withdraw : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%withdraw : @storage
+            SWAP;       # @parameter%withdraw : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUP;        # @parameter%withdraw : @parameter%withdraw : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUG 2;      # @parameter%withdraw : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%withdraw : @storage
+            MEM;        # bool : @parameter%withdraw : @storage
+            IF
+              {}
+              {
+                PUSH string "Token not found"; # string : @parameter%withdraw : @storage
+                FAILWITH;   # FAILED
+              }; # @parameter%withdraw : @storage
+            SWAP;       # @storage : @parameter%withdraw
+            # sp.verify(sp.sender == self.data.tokens[params].owner, 'Only owner can withdraw') # @storage : @parameter%withdraw
+            DUP;        # @storage : @storage : @parameter%withdraw
+            DUG 2;      # @storage : @parameter%withdraw : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%withdraw : @storage
+            SWAP;       # @parameter%withdraw : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUP;        # @parameter%withdraw : @parameter%withdraw : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage
+            DUG 2;      # @parameter%withdraw : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%withdraw : @storage
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @parameter%withdraw : @storage
+            IF_NONE
+              {
+                PUSH int 1198; # int : @parameter%withdraw : @storage
+                FAILWITH;   # FAILED
+              }
+              {
+                # of_some: Get-item:1198 # @some : @parameter%withdraw : @storage
+              }; # @some : @parameter%withdraw : @storage
+            CAR;        # pair (address %contract) (address %owner) : @parameter%withdraw : @storage
+            CDR;        # address : @parameter%withdraw : @storage
+            SENDER;     # @sender : address : @parameter%withdraw : @storage
+            COMPARE;    # int : @parameter%withdraw : @storage
+            EQ;         # bool : @parameter%withdraw : @storage
+            IF
+              {}
+              {
+                PUSH string "Only owner can withdraw"; # string : @parameter%withdraw : @storage
+                FAILWITH;   # FAILED
+              }; # @parameter%withdraw : @storage
+            # sp.verify(self.data.tokens[params].status == 'unlocked', 'Unlock token before withadraw') # @parameter%withdraw : @storage
+            PUSH string "unlocked"; # string : @parameter%withdraw : @storage
+            DUP 3;      # @storage : string : @parameter%withdraw : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : @parameter%withdraw : @storage
+            DUP 3;      # @parameter%withdraw : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : @parameter%withdraw : @storage
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : string : @parameter%withdraw : @storage
+            IF_NONE
+              {
+                PUSH int 1199; # int : string : @parameter%withdraw : @storage
+                FAILWITH;   # FAILED
+              }
+              {
+                # of_some: Get-item:1199 # @some : string : @parameter%withdraw : @storage
+              }; # @some : string : @parameter%withdraw : @storage
+            GET 3;      # string : string : @parameter%withdraw : @storage
+            COMPARE;    # int : @parameter%withdraw : @storage
+            EQ;         # bool : @parameter%withdraw : @storage
+            IF
+              {}
+              {
+                PUSH string "Unlock token before withadraw"; # string : @parameter%withdraw : @storage
+                FAILWITH;   # FAILED
+              }; # @parameter%withdraw : @storage
+            # sp.transfer(sp.list([sp.set_type_expr(sp.record(from_ = sp.address('KT1Tezooo1zzSmartPyzzSTATiCzzzyfC8eF'), txs = sp.list([sp.record(to_ = sp.sender, token_id = self.data.tokens[params].token_id, amount = 1)])), sp.TRecord(from_ = sp.TAddress, txs = sp.TList(sp.TRecord(amount = sp.TNat, to_ = sp.TAddress, token_id = sp.TNat).layout(("to_", ("token_id", "amount"))))).layout(("from_", "txs")))]), sp.tez(0), sp.contract(sp.TList(sp.TRecord(from_ = sp.TAddress, txs = sp.TList(sp.TRecord(amount = sp.TNat, to_ = sp.TAddress, token_id = sp.TNat).layout(("to_", ("token_id", "amount"))))).layout(("from_", "txs"))), self.data.nft_contract, entry_point='transfer').open_some()) # @parameter%withdraw : @storage
+            NIL operation; # list operation : @parameter%withdraw : @storage
+            DUP 3;      # @storage : list operation : @parameter%withdraw : @storage
+            CAR;        # pair (address %admin_address) (address %nft_contract) : list operation : @parameter%withdraw : @storage
+            CDR;        # address : list operation : @parameter%withdraw : @storage
+            CONTRACT %transfer (list (pair address (list (pair address (pair nat nat))))); # option (contract (list (pair address (list (pair address (pair nat nat)))))) : list operation : @parameter%withdraw : @storage
+            IF_NONE
+              {
+                PUSH int 1202; # int : list operation : @parameter%withdraw : @storage
+                FAILWITH;   # FAILED
+              }
+              {}; # @some : list operation : @parameter%withdraw : @storage
+            PUSH mutez 0; # mutez : @some : list operation : @parameter%withdraw : @storage
+            NIL (pair address (list (pair address (pair nat nat)))); # list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            NIL (pair address (pair nat nat)); # list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            PUSH nat 1; # nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            DUP 8;      # @storage : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            DUP 8;      # @parameter%withdraw : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            GET;        # option (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            IF_NONE
+              {
+                PUSH int 1203; # int : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+                FAILWITH;   # FAILED
+              }
+              {
+                # of_some: Get-item:1203 # @some : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+              }; # @some : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            GET 4;      # nat : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            SENDER;     # @sender : nat : nat : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            PAIR 3;     # pair @sender (pair nat nat) : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            CONS;       # list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            PUSH address "KT1Tezooo1zzSmartPyzzSTATiCzzzyfC8eF"; # address : list (pair address (pair nat nat)) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            PAIR;       # pair address (list (pair address (pair nat nat))) : list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            CONS;       # list (pair address (list (pair address (pair nat nat)))) : mutez : @some : list operation : @parameter%withdraw : @storage
+            TRANSFER_TOKENS; # operation : list operation : @parameter%withdraw : @storage
+            CONS;       # list operation : @parameter%withdraw : @storage
+            # del self.data.tokens[params] # list operation : @parameter%withdraw : @storage
+            DIG 2;      # @storage : list operation : @parameter%withdraw
+            DUP;        # @storage : @storage : list operation : @parameter%withdraw
+            GET 3;      # map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @parameter%withdraw
+            NONE (pair (pair address address) (pair string nat)); # option (pair (pair address address) (pair string nat)) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation : @parameter%withdraw
+            DIG 4;      # @parameter%withdraw : option (pair (pair address address) (pair string nat)) : map nat (pair (pair (address %contract) (address %owner)) (pair (string %status) (nat %token_id))) : @storage : list operation
+            UPDATE;     # map nat (pair (pair address address) (pair string nat)) : @storage : list operation
+            UPDATE 3;   # @storage : list operation
+            SWAP;       # list operation : @storage
+          }; # list operation : @storage
+      }; # list operation : @storage
+    PAIR;       # pair (list operation) @storage
+  };
