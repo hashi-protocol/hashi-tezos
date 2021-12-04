@@ -9,7 +9,6 @@
 ## <https://assets.tqtezos.com/docs/token-contracts/fa2/1-fa2-smartpy/>.
 ##
 import smartpy as sp
-
 ##
 ## ## Meta-Programming Configuration
 ##
@@ -24,7 +23,7 @@ class FA2_config:
                  readable                           = True,
                  force_layouts                      = True,
                  support_operator                   = True,
-                 assume_consecutive_token_ids       = False,
+                 assume_consecutive_token_ids       = True,
                  store_total_supply                 = True,
                  lazy_entry_points                  = False,
                  allow_self_transfer                = False,
@@ -300,23 +299,22 @@ class Token_id_set:
             return sp.nat(0)
         else:
             return sp.set(t = token_id_type)
-    def add(self, metaset, v):
+    def add(self, totalTokens, tokenID):
         if self.config.assume_consecutive_token_ids:
-            sp.verify(metaset == v, message = "Token-IDs should be consecutive")
-            metaset.set(sp.max(metaset, v + 1))
+            sp.verify(totalTokens == tokenID, message = "Token-IDs should be consecutive")
+            totalTokens.set(tokenID + 1)
         else:
-            metaset.add(v)
-    
-    def contains(self, metaset, v):
+            totalTokens.add(tokenID)
+    def contains(self, totalTokens, tokenID):
         if self.config.assume_consecutive_token_ids:
-            return (v < metaset)
+            return (tokenID < totalTokens)
         else:
-            return metaset.contains(v)
-    def cardinal(self, metaset):
+            return totalTokens.contains(tokenID)
+    def cardinal(self, totalTokens):
         if self.config.assume_consecutive_token_ids:
-            return metaset
+            return totalTokens
         else:
-            return sp.len(metaset)
+            return sp.len(totalTokens)
 
 ##
 ## ## Implementation of the Contract
@@ -335,7 +333,7 @@ def mutez_transfer(contract, params):
 ## standard and a few other classes to add other common features.
 ##
 ## - We see the use of
-##   [`sp.entry_point`](https://www.smartpy.io/dev/reference.html#_entry_points)
+##   [`sp.entry_point`](https://smartpy.io/docs/introduction/entry_points)
 ##   as a function instead of using annotations in order to allow
 ##   optional entry points.
 ## - The storage field `metadata_string` is a placeholder, the build
@@ -533,48 +531,18 @@ class FA2_mint(FA2_core):
                 message = "NFT-asset: cannot mint twice same token"
             )
         user = self.ledger_key.make(params.address, params.token_id)
-        self.token_id_set.add(self.data.all_tokens, params.token_id)
         sp.if self.data.ledger.contains(user):
             self.data.ledger[user].balance += params.amount
         sp.else:
             self.data.ledger[user] = Ledger_value.make(params.amount)
-        sp.if self.data.token_metadata.contains(params.token_id):
-            if self.config.store_total_supply:
-                self.data.total_supply[params.token_id] = params.amount
-        sp.else:
+        sp.if ~ self.token_id_set.contains(self.data.all_tokens, params.token_id):
+            self.token_id_set.add(self.data.all_tokens, params.token_id)
             self.data.token_metadata[params.token_id] = sp.record(
                 token_id    = params.token_id,
                 token_info  = params.metadata
             )
-            if self.config.store_total_supply:
-                self.data.total_supply[params.token_id] = params.amount
-
-    @sp.entry_point
-    def burn(self, params):
-        sp.verify(self.data.ledger.contains((sp.sender,params.token_id)), "Ledger does not own")
-        sp.verify(self.data.ledger[(sp.sender,params.token_id)].balance == 1,"Not the owner")
-        # We don't check for pauseness because we're the admin.
-        if self.config.single_asset:
-            sp.verify(params.token_id == 0, message = "single-asset: token-id <> 0")
-        if self.config.non_fungible:
-            sp.verify(
-                 self.token_id_set.contains(self.data.all_tokens, params.token_id),
-                message = "NFT-asset: token not found"
-            )
-        user = self.ledger_key.make(params.address, params.token_id)
-        sp.verify(self.data.ledger.contains(user), message = "NFT Owner does not correspond")
-        sp.verify(self.data.token_metadata.contains(params.token_id),message = "NFT metadata not found")
-        
-        del self.data.ledger[user]
-        del self.data.token_metadata[params.token_id]
-
-        self.data.token_metadata[params.token_id] = sp.record(
-                token_id    = params.token_id,
-                token_info  = sp.map(l = {"eth_owner" : params.eth_owner } ),
-            )
-        self.data.total_supply[params.token_id] = 0
-        
-        
+        if self.config.store_total_supply:
+            self.data.total_supply[params.token_id] = params.amount + self.data.total_supply.get(params.token_id, default_value = 0)
 
 class FA2_token_metadata(FA2_core):
     def set_token_metadata_view(self):
@@ -625,15 +593,6 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
     def total_supply(self, tok):
         if self.config.store_total_supply:
             sp.result(self.data.total_supply[tok])
-        else:
-            sp.set_type(tok, sp.TNat)
-            sp.result("total-supply not supported")
-    
-    @sp.offchain_view
-    def isBurned(self, tok):
-        if self.config.store_total_supply:
-            sp.verify(self.data.token_metadata.contains(tok), "Token not found")
-            sp.result(self.data.total_supply[tok] == sp.nat(0))
         else:
             sp.set_type(tok, sp.TNat)
             sp.result("total-supply not supported")
@@ -723,7 +682,7 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
 ## callback-based entry-points.
 ## It stores facts about the results in order to use `scenario.verify(...)`
 ## (cf.
-##  [documentation](https://www.smartpy.io/dev/reference.html#_in_a_test_scenario_)).
+##  [documentation](https://smartpy.io/docs/scenarios/testing)).
 class View_consumer(sp.Contract):
     def __init__(self, contract):
         self.contract = contract
@@ -746,7 +705,7 @@ class View_consumer(sp.Contract):
 ##
 ## Tests are also parametrized by the `FA2_config` object.
 ## The best way to visualize them is to use the online IDE
-## (<https://www.smartpy.io/dev/>).
+## (<https://www.smartpy.io/ide/>).
 def add_test(config, is_default = True):
     @sp.add_test(name = config.name, is_default = is_default)
     def test():
@@ -774,7 +733,12 @@ def add_test(config, is_default = True):
             decimals = 2,
             symbol= "TK0" )
         c1.mint(address = alice.address,
-                            amount = 100,
+                            amount = 50,
+                            metadata = tok0_md,
+                            token_id = 0).run(sender = admin)
+        # Mint a second time
+        c1.mint(address = alice.address,
+                            amount = 50,
                             metadata = tok0_md,
                             token_id = 0).run(sender = admin)
         scenario.h2("Transfers Alice -> Bob")
@@ -1099,7 +1063,7 @@ def environment_config():
 ##
 ## This specific main uses the relative new feature of non-default tests
 ## for the browser version.
-if False:
+if "templates" not in __name__:
     add_test(environment_config())
     if not global_parameter("only_environment_test", False):
         add_test(FA2_config(debug_mode = True), is_default = not sp.in_browser)
